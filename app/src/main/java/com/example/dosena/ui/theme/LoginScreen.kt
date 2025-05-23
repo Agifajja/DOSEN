@@ -1,7 +1,7 @@
 package com.example.dosena.ui
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,7 +12,7 @@ import com.example.dosena.data.LoginViewModel
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: (String) -> Unit
 ) {
     val loginState by viewModel.loginState.collectAsState()
     val loginError by viewModel.loginError.collectAsState()
@@ -21,21 +21,29 @@ fun LoginScreen(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val scaffoldState = rememberScaffoldState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    if (loginState) {
-        LaunchedEffect(Unit) {
-            onLoginSuccess()
+    // ✅ Pindahkan pemanggilan suspend function ke dalam coroutine
+    LaunchedEffect(loginState) {
+        if (loginState) {
+            val token = viewModel.getAccessToken()
+            token?.let {
+                onLoginSuccess(it)
+            }
         }
     }
 
+    // Menampilkan snackbar jika error
     LaunchedEffect(loginError) {
         loginError?.let {
-            scaffoldState.snackbarHostState.showSnackbar(it)
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearError()
         }
     }
 
-    Scaffold(scaffoldState = scaffoldState) { padding ->
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -44,7 +52,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Login Dosen", style = MaterialTheme.typography.h5)
+            Text("Login Dosen", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(32.dp))
 
             OutlinedTextField(

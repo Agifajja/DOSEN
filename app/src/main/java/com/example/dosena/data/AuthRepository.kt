@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.first
 class AuthRepository(
     private val authApi: ApiService,
     private val mainApi: ApiService,
-    private val tokenPrefs: TokenPreferences
+    val tokenPrefs: TokenPreferences
 ) {
     suspend fun login(username: String, password: String): AuthResult {
         return try {
@@ -45,7 +45,7 @@ class AuthRepository(
         } else accessToken
     }
 
-    suspend fun getMahasiswaPA(): PaSayaResponse? {
+    suspend fun getMahasiswaPA(s: String): PaSayaResponse? {
         val token = getValidAccessToken() ?: return null
         val response = mainApi.getMahasiswaPA("Bearer $token")
         return if (response.isSuccessful) {
