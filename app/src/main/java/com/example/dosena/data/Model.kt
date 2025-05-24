@@ -237,3 +237,10 @@ data class InfoSetoran(
     val tgl_validasi: String,
     val dosen_yang_mengesahkan: DosenPA
 )
+
+
+data class TambahEditSetoranRequest(
+    val nama: String,
+    val label: String,
+    val tanggal_setor: String
+)

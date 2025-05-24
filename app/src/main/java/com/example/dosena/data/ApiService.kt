@@ -49,5 +49,19 @@ interface ApiService {
         @Body requestBody: DeleteSetoranRequest
     ): Response<GeneralResponse>
 
+    @POST("setoran-mahasiswa/{nim}/tambah")
+    suspend fun tambahSetoranMahasiswa(
+        @Header("Authorization") token: String,
+        @Path("nim") nim: String,
+        @Body request: TambahEditSetoranRequest
+    ): Response<GeneralResponse>
+
+    @PUT("setoran-mahasiswa/{id}/edit")
+    suspend fun editSetoranMahasiswa(
+        @Header("Authorization") token: String,
+        @Path("id") id: String,
+        @Body request: TambahEditSetoranRequest
+    ): Response<GeneralResponse>
+
 
 }
