@@ -28,7 +28,7 @@ class TokenPreferences(private val context: Context) {
     val refreshToken: Flow<String?> = context.dataStore.data.map { it[REFRESH_TOKEN] }
     val tokenExpiry: Flow<Long?> = context.dataStore.data.map { it[EXPIRES_IN] }
 
-    // ✅ Tambahkan fungsi ini:
+
     suspend fun getAccessToken(): String? {
         return accessToken.first()
     }

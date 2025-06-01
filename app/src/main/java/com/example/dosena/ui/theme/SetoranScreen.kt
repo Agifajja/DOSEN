@@ -96,22 +96,7 @@ fun SetoranScreen(
 
                             1 -> {
                                 // Log Setoran
-                                LazyColumn {
-                                    items(data.data.setoran.log) { log ->
-                                        Card(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(vertical = 4.dp),
-                                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                                        ) {
-                                            Column(modifier = Modifier.padding(12.dp)) {
-                                                Text("Keterangan: ${log.keterangan}")
-                                                Text("Aksi: ${log.aksi}")
-                                                Text("Waktu: ${log.timestamp}")
-                                            }
-                                        }
-                                    }
-                                }
+                                
                             }
 
                             2 -> {
