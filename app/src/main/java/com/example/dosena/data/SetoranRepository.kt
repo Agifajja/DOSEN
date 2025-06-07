@@ -4,45 +4,37 @@ import retrofit2.Response
 
 class SetoranRepository(private val apiService: ApiService) {
 
-    suspend fun getSetoranMahasiswa(token: String, nim: String): Response<SetoranMahasiswaResponse> {
+    // Fungsi untuk mendapatkan data setoran mahasiswa
+    suspend fun getSetoranMahasiswa(
+        token: String,
+        nim: String
+    ): Response<SetoranMahasiswaResponse> {
         return apiService.getSetoranMahasiswa("Bearer $token", nim)
     }
 
-    suspend fun simpanSetoran(
+    // Fungsi untuk mengedit data setoran mahasiswa
+    suspend fun editSetoranMahasiswa(
         token: String,
         nim: String,
         request: SimpanSetoranRequest
     ): Response<GeneralResponse> {
-        return apiService.simpanSetoranMahasiswa(token, nim, request)
+        return apiService.editSetoranMahasiswa(
+            token = "Bearer $token",
+            nim = nim,
+            request = request
+        )
     }
 
-    suspend fun hapusSetoran(
+    // Fungsi untuk menghapus data setoran mahasiswa
+    suspend fun hapusSetoranMahasiswa(
         token: String,
         nim: String,
-        request: DeleteSetoranRequest
+        request: HapusSetoranRequest
     ): Response<GeneralResponse> {
-        return apiService.deleteSetoranMahasiswa(token, nim, request)
-    }
-
-    suspend fun tambahSetoran(
-        token: String,
-        nim: String,
-        nama: String,
-        label: String,
-        tanggal: String
-    ): Response<GeneralResponse> {
-        val request = TambahEditSetoranRequest(nama, label, tanggal)
-        return apiService.tambahSetoranMahasiswa(token, nim, request)
-    }
-
-    suspend fun editSetoran(
-        token: String,
-        id: String,
-        nama: String,
-        label: String,
-        tanggal: String
-    ): Response<GeneralResponse> {
-        val request = TambahEditSetoranRequest(nama, label, tanggal)
-        return apiService.editSetoranMahasiswa("Bearer $token", id, request)
+        return apiService.deleteSetoranMahasiswa(
+            token = "Bearer $token",
+            nim = nim,
+            requestBody = request
+        )
     }
 }

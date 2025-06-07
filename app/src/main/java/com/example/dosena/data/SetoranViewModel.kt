@@ -14,6 +14,7 @@ class SetoranViewModel(
     val setoranResponse = mutableStateOf<SetoranMahasiswaResponse?>(null)
     val responseMessage = mutableStateOf("")
 
+    // Fungsi untuk mengambil data setoran mahasiswa
     fun fetchSetoranMahasiswa(token: String, nim: String) {
         viewModelScope.launch {
             isLoading.value = true
@@ -23,74 +24,94 @@ class SetoranViewModel(
                     setoranResponse.value = response.body()
                     Log.d("SetoranVM", "Berhasil memuat data setoran.")
                 } else {
-                    Log.e("SetoranVM", "Gagal memuat: ${response.errorBody()?.string()}")
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("SetoranVM", "Gagal memuat data setoran: ${response.code()} - $errorBody")
+                    responseMessage.value = "Gagal memuat data setoran: ${response.message()}"
                 }
             } catch (e: Exception) {
-                Log.e("SetoranVM", "Error: ${e.localizedMessage}")
+                Log.e("SetoranVM", "Error saat fetchSetoranMahasiswa: ${e.localizedMessage}")
+                responseMessage.value = "Terjadi kesalahan: ${e.localizedMessage}"
             } finally {
                 isLoading.value = false
             }
         }
     }
 
-    fun simpanSetoran(token: String, nim: String, data: List<KomponenSetoran>, tgl: String?) {
-        viewModelScope.launch {
-            isLoading.value = true
-            try {
-                val request = SimpanSetoranRequest(data, tgl)
-                val response = repository.simpanSetoran(token, nim, request)
-                if (response.isSuccessful) {
-                    responseMessage.value = response.body()?.message ?: "Setoran berhasil disimpan."
-                    fetchSetoranMahasiswa(token, nim)
-                } else {
-                    responseMessage.value = "Gagal menyimpan: ${response.errorBody()?.string()}"
-                }
-            } catch (e: Exception) {
-                responseMessage.value = "Error saat simpan: ${e.localizedMessage}"
-            } finally {
-                isLoading.value = false
-            }
-        }
-    }
 
-    fun hapusSetoran(token: String, nim: String, data: List<DeleteSetoranItem>, onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            isLoading.value = true
-            try {
-                val request = DeleteSetoranRequest(data)
-                val response = repository.hapusSetoran(token, nim, request)
-                if (response.isSuccessful) {
-                    responseMessage.value = response.body()?.message ?: "Setoran berhasil dihapus."
-                    fetchSetoranMahasiswa(token, nim)
-                    onSuccess()
-                } else {
-                    responseMessage.value = "Gagal menghapus: ${response.errorBody()?.string()}"
-                }
-            } catch (e: Exception) {
-                responseMessage.value = "Error saat hapus: ${e.localizedMessage}"
-            } finally {
-                isLoading.value = false
-            }
-        }
-    }
-
+    // Fungsi untuk mendapatkan detail setoran berdasarkan ID
     fun getSetoranDetailById(id: String): SetoranDetail? {
         return setoranResponse.value?.data?.setoran?.detail?.find { it.id == id }
     }
 
-    fun tambahSetoran(token: String, nim: String, nama: String, label: String, tanggal: String, onDone: () -> Unit) {
+    // Fungsi untuk menghapus data setoran mahasiswa
+    fun hapusSetoran(
+        token: String,
+        nim: String,
+        data: List<HapusKomponen>,
+        onSuccess: () -> Unit = {}
+    ) {
         viewModelScope.launch {
             isLoading.value = true
             try {
-                val response = repository.tambahSetoran(token, nim, nama, label, tanggal)
+                val request = HapusSetoranRequest(data)
+                Log.d("SetoranVM", "Menghapus setoran dengan request: $request")
+
+                val response = repository.hapusSetoranMahasiswa(token, nim, request)
                 if (response.isSuccessful) {
-                    responseMessage.value = "Setoran berhasil ditambahkan."
-                    fetchSetoranMahasiswa(token, nim)
+                    responseMessage.value = response.body()?.message ?: "Setoran berhasil dihapus."
+                    fetchSetoranMahasiswa(token, nim) // Refresh data setelah berhasil
+                    onSuccess()
                 } else {
-                    responseMessage.value = "Gagal tambah setoran: ${response.errorBody()?.string()}"
+                    val errorBody = response.errorBody()?.string()
+                    responseMessage.value =
+                        "Gagal menghapus setoran: ${response.message()} - $errorBody"
+                    Log.e("SetoranVM", responseMessage.value)
                 }
             } catch (e: Exception) {
-                responseMessage.value = "Error tambah setoran: ${e.localizedMessage}"
+                responseMessage.value = "Error saat menghapus setoran: ${e.localizedMessage}"
+                Log.e("SetoranVM", responseMessage.value)
+            } finally {
+                isLoading.value = false
+            }
+        }
+    }
+
+
+    // Fungsi untuk mengedit data setoran mahasiswa
+    fun editSetoran(
+        token: String,
+        nim: String,
+        dataSetoran: List<KomponenSetoranRequest>,
+        tanggal: String? = null,
+        onDone: () -> Unit = {}
+    ) {
+        if (dataSetoran.isEmpty()) {
+            responseMessage.value = "Data setoran tidak boleh kosong."
+            return
+        }
+
+        viewModelScope.launch {
+            isLoading.value = true
+            try {
+                val request = SimpanSetoranRequest(
+                    data_setoran = dataSetoran,
+                    tgl_setoran = tanggal // Optional
+                )
+                Log.d("SetoranVM", "Mengedit setoran dengan request: $request")
+
+                val response = repository.editSetoranMahasiswa(token, nim, request)
+                if (response.isSuccessful) {
+                    responseMessage.value = "Setoran berhasil diperbarui."
+                    fetchSetoranMahasiswa(token, nim) // Refresh data setelah berhasil
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    responseMessage.value =
+                        "Gagal memperbarui setoran: ${response.message()} - $errorBody"
+                    Log.e("SetoranVM", responseMessage.value)
+                }
+            } catch (e: Exception) {
+                responseMessage.value = "Error saat memperbarui setoran: ${e.localizedMessage}"
+                Log.e("SetoranVM", responseMessage.value)
             } finally {
                 isLoading.value = false
                 onDone()
@@ -98,26 +119,4 @@ class SetoranViewModel(
         }
     }
 
-    fun editSetoran(token: String, id: String, nama: String, label: String, tanggal: String, onDone: () -> Unit) {
-        viewModelScope.launch {
-            isLoading.value = true
-            try {
-                val response = repository.editSetoran(token, id, nama, label, tanggal)
-                if (response.isSuccessful) {
-                    responseMessage.value = "Setoran berhasil diperbarui."
-                    val nim = setoranResponse.value?.data?.info?.nim
-                    if (nim != null) {
-                        fetchSetoranMahasiswa(token, nim)
-                    }
-                } else {
-                    responseMessage.value = "Gagal edit setoran: ${response.errorBody()?.string()}"
-                }
-            } catch (e: Exception) {
-                responseMessage.value = "Error edit setoran: ${e.localizedMessage}"
-            } finally {
-                isLoading.value = false
-                onDone()
-            }
-        }
-    }
 }

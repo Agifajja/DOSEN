@@ -40,44 +40,52 @@ android {
 }
 
 dependencies {
-
+    // Core Android libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+
+    // Jetpack Compose libraries
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.foundation.layout.android)
-    implementation(libs.androidx.foundation.layout.android)
-    implementation(libs.androidx.foundation.layout.android)
-    implementation(libs.androidx.foundation.layout.android)
-    implementation(libs.androidx.foundation.layout.android)
-    implementation(libs.androidx.foundation.layout.android)
-    implementation(libs.androidx.storage)
+    implementation(libs.androidx.foundation)
     implementation(libs.androidx.navigation.compose.android)
-    implementation(libs.androidx.foundation.layout.android)
+
+    // Firebase Authentication
     implementation(libs.firebase.auth.ktx)
+
+    // Retrofit for networking
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+    // DataStore Preferences
+    implementation("androidx.datastore:datastore-preferences:1.1.6")
+
+    // Jetpack Navigation for Compose
+    implementation("androidx.navigation:navigation-compose:2.9.0")
+
+    // Lifecycle libraries
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx.v261)
+
+    // Kotlin Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Material Design Components
+    implementation(libs.material)
+
+    // Testing dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    // Debugging tools
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation (libs.retrofit)
-    implementation (libs.converter.gson)
-    implementation (libs.androidx.activity.compose.v172)
-    implementation (libs.androidx.lifecycle.runtime.ktx.v261)
-    implementation (libs.androidx.lifecycle.viewmodel.compose)
-    implementation (libs.kotlinx.coroutines.android)
-    implementation (libs.androidx.material)
-    implementation(libs.androidx.foundation)
-    implementation(libs.material)
-    implementation("androidx.datastore:datastore-preferences:1.1.6")
-    implementation ("androidx.navigation:navigation-compose:2.9.0")
-    implementation (libs.androidx.material.v160)
-
-
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 }

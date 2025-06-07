@@ -9,7 +9,7 @@ interface ApiService {
     @POST("realms/dev/protocol/openid-connect/token")
     suspend fun login(
         @Field("client_id") clientId: String = "setoran-mobile-dev",
-        @Field("client_secret") clientSecret: String = "aqJp3xnXKudgC7RMOshEQP7ZoVKWzoSl", // konsisten
+        @Field("client_secret") clientSecret: String = "aqJp3xnXKudgC7RMOshEQP7ZoVKWzoSl",
         @Field("grant_type") grantType: String = "password",
         @Field("username") username: String,
         @Field("password") password: String
@@ -19,7 +19,7 @@ interface ApiService {
     @POST("realms/dev/protocol/openid-connect/token")
     suspend fun refreshToken(
         @Field("client_id") clientId: String = "setoran-mobile-dev",
-        @Field("client_secret") clientSecret: String = "aqJp3xnXKudgC7RMOshEQP7ZoVKWzoSl", // perbaiki huruf terakhir (bukan I besar)
+        @Field("client_secret") clientSecret: String = "aqJp3xnXKudgC7RMOshEQP7ZoVKWzoSl",
         @Field("grant_type") grantType: String = "refresh_token",
         @Field("refresh_token") refreshToken: String
     ): Response<LoginResponse>
@@ -35,33 +35,22 @@ interface ApiService {
         @Path("nim") nim: String
     ): Response<SetoranMahasiswaResponse>
 
-    @POST("mahasiswa/setoran/{nim}")
-    suspend fun simpanSetoranMahasiswa(
-        @Header("Authorization") token: String,
-        @Path("nim") nim: String,
-        @Body requestBody: SimpanSetoranRequest
-    ): Response<GeneralResponse>
+
 
     @HTTP(method = "DELETE", path = "mahasiswa/setoran/{nim}", hasBody = true)
     suspend fun deleteSetoranMahasiswa(
         @Header("Authorization") token: String,
         @Path("nim") nim: String,
-        @Body requestBody: DeleteSetoranRequest
+        @Body requestBody: HapusSetoranRequest
     ): Response<GeneralResponse>
 
-    @POST("setoran-mahasiswa/{nim}/tambah")
-    suspend fun tambahSetoranMahasiswa(
-        @Header("Authorization") token: String,
-        @Path("nim") nim: String,
-        @Body request: TambahEditSetoranRequest
-    ): Response<GeneralResponse>
 
-    @PUT("setoran-mahasiswa/{id}/edit")
+
+    // ✅ Ubah endpoint edit jadi sesuai instruksi baru
+    @PUT("mahasiswa/setoran/{nim}")
     suspend fun editSetoranMahasiswa(
         @Header("Authorization") token: String,
-        @Path("id") id: String,
-        @Body request: TambahEditSetoranRequest
+        @Path("nim") nim: String,
+        @Body request: SimpanSetoranRequest
     ): Response<GeneralResponse>
-
-
 }

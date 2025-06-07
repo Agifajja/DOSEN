@@ -1,6 +1,8 @@
 package com.example.dosena.data
 
+
 import com.google.gson.annotations.SerializedName
+
 data class LoginResponse(
     @SerializedName("access_token")
     val accessToken: String,
@@ -128,25 +130,14 @@ data class KomponenSetoran(
     val namaKomponenSetoran: String
 )
 
-data class SimpanSetoranRequest(
-    @SerializedName("data_setoran")
-    val dataSetoran: List<KomponenSetoran>,
-    @SerializedName("tgl_setoran")
-    val tglSetoran: String? = null
-)
 
-data class DeleteSetoranItem(
-    val id: String,
-    @SerializedName("id_komponen_setoran")
-    val idKomponenSetoran: String,
-    @SerializedName("nama_komponen_setoran")
-    val namaKomponenSetoran: String
-)
 
-data class DeleteSetoranRequest(
-    @SerializedName("data_setoran")
-    val dataSetoran: List<DeleteSetoranItem>
-)
+
+
+
+
+
+
 
 data class GeneralResponse(
     val response: Boolean,
@@ -239,8 +230,22 @@ data class InfoSetoran(
 )
 
 
-data class TambahEditSetoranRequest(
-    val nama: String,
-    val label: String,
-    val tanggal_setor: String
+
+data class SimpanSetoranRequest(
+    val data_setoran: List<KomponenSetoranRequest>,
+    val tgl_setoran: String? = null
+)
+
+data class KomponenSetoranRequest(
+    val nama_komponen_setoran: String,
+    val id_komponen_setoran: String
+)
+data class HapusSetoranRequest(
+    val data_setoran: List<HapusKomponen>
+)
+
+data class HapusKomponen(
+    val id: String,
+    val id_komponen_setoran: String,
+    val nama_komponen_setoran: String
 )

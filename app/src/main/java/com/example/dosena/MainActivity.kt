@@ -13,10 +13,7 @@ import androidx.navigation.compose.*
 import com.example.dosena.data.*
 import com.example.dosena.ui.LoginScreen
 import com.example.dosena.ui.MahasiswaPAScreen
-import com.example.dosena.ui.theme.FormSetoranScreen
 import com.example.dosena.ui.theme.SetoranScreen
-import androidx.navigation.navArgument
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,35 +31,23 @@ class MainActivity : ComponentActivity() {
             val authRepository = AuthRepository(authApi, mainApi, tokenPrefs)
             val setoranRepository = SetoranRepository(mainApi)
 
-            // ViewModel: Login
-            val loginViewModel = remember {
-                ViewModelProvider(this, object : ViewModelProvider.Factory {
-                    @Suppress("UNCHECKED_CAST")
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        return LoginViewModel(authRepository) as T
+            // ViewModel Factory
+            val viewModelFactory = object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return when (modelClass) {
+                        LoginViewModel::class.java -> LoginViewModel(authRepository) as T
+                        MahasiswaPAViewModel::class.java -> MahasiswaPAViewModel(authRepository) as T
+                        SetoranViewModel::class.java -> SetoranViewModel(setoranRepository) as T
+                        else -> throw IllegalArgumentException("Unknown ViewModel class")
                     }
-                })[LoginViewModel::class.java]
+                }
             }
 
-            // ViewModel: Mahasiswa PA
-            val mahasiswaViewModel = remember {
-                ViewModelProvider(this, object : ViewModelProvider.Factory {
-                    @Suppress("UNCHECKED_CAST")
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        return MahasiswaPAViewModel(authRepository) as T
-                    }
-                })[MahasiswaPAViewModel::class.java]
-            }
-
-            // ViewModel: Setoran
-            val setoranViewModel = remember {
-                ViewModelProvider(this, object : ViewModelProvider.Factory {
-                    @Suppress("UNCHECKED_CAST")
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        return SetoranViewModel(setoranRepository) as T
-                    }
-                })[SetoranViewModel::class.java]
-            }
+            // ViewModels
+            val loginViewModel = remember { ViewModelProvider(this, viewModelFactory)[LoginViewModel::class.java] }
+            val mahasiswaViewModel = remember { ViewModelProvider(this, viewModelFactory)[MahasiswaPAViewModel::class.java] }
+            val setoranViewModel = remember { ViewModelProvider(this, viewModelFactory)[SetoranViewModel::class.java] }
 
             // Token penyimpanan sementara
             var token by remember { mutableStateOf("") }
@@ -96,57 +81,7 @@ class MainActivity : ComponentActivity() {
                             viewModel = setoranViewModel,
                             nim = nim,
                             token = token,
-                            navController = navController,
-                            onAddClick = {
-                                navController.navigate("form-setoran/$nim")
-                            },
-                            onEditClick = { id ->
-                                navController.navigate("form-setoran/$nim?id=$id")
-                            },
-                            onDeleteClick = { id ->
-                                val deleteItem = DeleteSetoranItem(
-                                    id = id,
-                                    idKomponenSetoran = "", // <-- Isi sesuai data real, atau kosong jika tidak wajib
-                                    namaKomponenSetoran = "" // <-- Isi sesuai data real
-                                )
-                                setoranViewModel.hapusSetoran(
-                                    token = token,
-                                    nim = nim,
-                                    data = listOf(deleteItem),
-                                    onSuccess = {
-                                        setoranViewModel.fetchSetoranMahasiswa(token, nim)
-                                    }
-                                )
-                            }
-
-                        )
-                    }
-
-                    // Form Tambah/Edit Setoran
-                    composable(
-                        "form-setoran/{nim}?id={id}",
-                        arguments = listOf(
-                            navArgument("nim") { type = NavType.StringType },
-                            navArgument("id") {
-                                type = NavType.StringType
-                                nullable = true
-                                 defaultValue = null
-                            }
-                        )
-                    ) { backStackEntry ->
-                        val nim = backStackEntry.arguments?.getString("nim") ?: ""
-                        val id = backStackEntry.arguments?.getString("id")
-                        FormSetoranScreen(
-                            viewModel = setoranViewModel,
-                            nim = nim,
-                            token = token,
-                            setoranId = id,
-                            onSuccess = {
-                                navController.popBackStack()
-                            },
-                            onCancel = {
-                                navController.popBackStack()
-                            }
+                            navController = navController
                         )
                     }
                 }
